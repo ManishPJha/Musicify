@@ -1,0 +1,3 @@
+project_id = "cvmkzssylsxlmrrkkqod"
+[functions.jiosaavn]
+verify_jwt = true

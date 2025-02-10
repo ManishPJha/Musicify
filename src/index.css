@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 100%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-[#121212] text-foreground font-['Inter'];
+  }
+}
+
+.music-gradient {
+  background: linear-gradient(to bottom right, #7C3AED, #4F46E5);
+}
+
+.hover-scale {
+  @apply transition-transform duration-200 hover:scale-105;
+}
