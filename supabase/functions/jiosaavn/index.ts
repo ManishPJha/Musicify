@@ -9,19 +9,23 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 function transformSong(song: any) {
   // Get the complete image array, or create a default one
   const imageArray = Array.isArray(song.image) ? song.image : [];
-  
+
   // Get the complete download URL array, or create a default one
-  const downloadUrlArray = Array.isArray(song.downloadUrl) ? song.downloadUrl : [];
-  
+  const downloadUrlArray = Array.isArray(song.downloadUrl)
+    ? song.downloadUrl
+    : [];
+
   // Get primary artists names
-  const artistNames = song.artists?.primary?.map((artist: any) => artist.name).join(', ') || 'Unknown Artist';
+  const artistNames =
+    song.artists?.primary?.map((artist: any) => artist.name).join(", ") ||
+    "Unknown Artist";
 
   return {
     id: song.id,
     title: song.name,
     artist: artistNames,
-    album: song.album?.name || 'Unknown Album',
-    duration: song.duration ? Math.floor(song.duration).toString() : '0',
+    album: song.album?.name || "Unknown Album",
+    duration: song.duration ? Math.floor(song.duration).toString() : "0",
     cover: imageArray,
     audio: downloadUrlArray,
   };

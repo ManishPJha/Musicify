@@ -169,11 +169,6 @@ export function MusicPlayerProvider({
   };
 
   const addToQueue = (song: Song) => {
-    console.log(
-      "%c [ adding song to queue ]-170",
-      "font-size:13px; background:#f8dd13; color:#ffff57;",
-      song
-    );
     setQueue((prev) => [...prev, song]);
   };
 

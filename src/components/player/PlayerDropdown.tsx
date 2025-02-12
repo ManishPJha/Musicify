@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Heart, List, ListPlus, MoreVertical } from "lucide-react";
 
@@ -10,17 +10,44 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-import { useMusicPlayer } from "@/hooks/useMusicPlayer";
+import { useMusicPlayer } from "@/hooks/use-musicPlayer";
+import { useAddSongToFavorite } from "@/hooks/use-songs";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 import { Song } from "@/lib/data";
 
-const PlayerDropdown = ({ song }: { song: Song }) => {
+const PlayerDropdown: React.FC<{ song: Song }> = ({ song }) => {
   const { addToQueue } = useMusicPlayer();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const {
+    mutate: addSongToFavorite,
+    isError,
+    error,
+    isSuccess,
+  } = useAddSongToFavorite();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast({
+        title: "Success",
+        description: `${song.title} has been added to your favorites`,
+      });
+    }
+    if (isError) {
+      toast({
+        title: "Error",
+        description: "Failed to add song to favorites",
+        variant: "destructive",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError, isSuccess, error]);
 
   const handleAddToFavorites = (song: Song) => {
-    // Add song to favorites
-    console.log(`Adding ${song.title} to favorites`);
-    // addToFavorites(song);
+    addSongToFavorite({ userId: user.id, songId: song.id });
   };
 
   return (

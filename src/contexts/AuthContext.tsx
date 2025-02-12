@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
+
 import { supabase } from "@/integrations/supabase/client";
+
+import { useSignin, useSignup, useSignout } from "@/hooks/use-auth";
 
 interface AuthContextType {
   session: Session | null;
@@ -15,6 +18,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
+
+  const { mutate: signInUser } = useSignin();
+  const { mutate: signUpUser } = useSignup();
+  const { mutate: signOutUser } = useSignout();
 
   useEffect(() => {
     // Get initial session
@@ -35,30 +42,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
+    signInUser({ email, password });
   };
 
   const signUp = async (email: string, password: string, username: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username,
-        },
-      },
-    });
-    if (error) throw error;
+    signUpUser({ email, password, username });
   };
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  };
+  const signOut = async () => signOutUser();
 
   return (
     <AuthContext.Provider value={{ session, user, signIn, signUp, signOut }}>
@@ -67,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

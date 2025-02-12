@@ -2,7 +2,7 @@ import { Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useToast } from "@/hooks/use-toast";
-import { useMusicPlayer } from "@/hooks/useMusicPlayer";
+import { useMusicPlayer } from "@/hooks/use-musicPlayer";
 
 import { Playlist } from "@/lib/data";
 

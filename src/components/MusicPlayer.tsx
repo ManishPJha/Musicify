@@ -8,7 +8,7 @@ import {
   Shuffle,
   List,
 } from "lucide-react";
-import { useMusicPlayer } from "@/hooks/useMusicPlayer";
+import { useMusicPlayer } from "@/hooks/use-musicPlayer";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import {

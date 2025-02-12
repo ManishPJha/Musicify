@@ -1,46 +1,28 @@
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Heart, Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import PreviewComponent from "@/components/PreviewComponent";
+
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { useGetPlaylistSongs } from "@/hooks/use-playlists";
+
+import { supabase } from "@/integrations/supabase/client";
+
 import { JioSaavnImage } from "@/lib/data";
+import { useGetFavoritesSongs } from "@/hooks/use-songs";
 
 export default function PlaylistDetail() {
   const { id } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const { data: playlist, isLoading: playlistLoading } = useQuery({
-    queryKey: ["playlist", id],
-    queryFn: async () => {
-      const { data: playlist, error } = await supabase
-        .from("playlists")
-        .select("*, playlist_songs(*, songs(*))")
-        .eq("id", id)
-        .single();
+  const { data: playlist, isLoading: playlistLoading } =
+    useGetPlaylistSongs(id);
 
-      if (error) throw error;
-      return playlist;
-    },
-  });
-
-  const { data: favorites } = useQuery({
-    queryKey: ["favorites", user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("favorites")
-        .select("song_id")
-        .eq("user_id", user?.id);
-
-      if (error) throw error;
-      return data.map((f) => f.song_id);
-    },
-    enabled: !!user,
-  });
+  const { data: favorites } = useGetFavoritesSongs(user?.id);
 
   const handleToggleFavorite = async (songId: string) => {
     if (!user) {

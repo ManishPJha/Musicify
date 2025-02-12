@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { Music } from "lucide-react";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { Music } from "lucide-react";
 
 export function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -32,14 +33,15 @@ export function AuthForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
     }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-8 p-8 bg-secondary rounded-lg animate-fade-in">
+    <div className="w-full max-w-md mx-auto md:mr-64 space-y-8 p-8 bg-secondary rounded-lg animate-fade-in">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
           <Music className="w-6 h-6 text-white" />
