@@ -74,6 +74,12 @@ export const createPlaylist = async (data: {
   return playlist;
 };
 
+/**
+ * Fetches a playlist songs from the database by using playlist id parameter.
+ *
+ * @param {string} playlistId - The ID of the playlist to delete.
+ * @returns
+ */
 export const getPlaylistSongs = async (playlistId: string) => {
   const { data: playlist, error } = await supabase
     .from("playlists")
