@@ -7,6 +7,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuContent,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
@@ -69,10 +73,21 @@ const PlayerDropdown: React.FC<{ song: Song }> = ({ song }) => {
           <Heart className="mr-2 h-4 w-4" />
           Add to Favorites
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <List className="mr-2 h-4 w-4" />
-          Add to Playlist
-        </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <List className="mr-2 h-4 w-4" />
+            Add to Playlist
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="bg-muted">
+            <DropdownMenuSeparator />
+            {/* Add playlist options here */}
+            <DropdownMenuItem>Playlist 1</DropdownMenuItem>
+            <DropdownMenuItem>Playlist 2</DropdownMenuItem>
+            <DropdownMenuItem>Playlist 3</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Create New Playlist</DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
       </DropdownMenuContent>
     </DropdownMenu>
   );

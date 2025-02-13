@@ -1,7 +1,15 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Song } from "@/lib/data";
 import { LRUCache } from "@/lib/cache";
+
+import {
+  currentTrackState,
+  isPlayingState,
+  lastPlayedTrackState,
+} from "@recoil/musicPlayerState";
 
 interface MusicPlayerContextType {
   currentSong: Song | null;
@@ -35,8 +43,10 @@ export function MusicPlayerProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [currentSong, setCurrentSongState] = useState<Song | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentSong, setCurrentSongState] = useRecoilState(currentTrackState);
+  const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
+  const lastPlayedTrack = useRecoilValue(lastPlayedTrackState);
+
   const [isShuffle, setIsShuffle] = useState(false);
   const [queue, setQueue] = useState<Song[]>([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState<Song[]>([]);
@@ -56,6 +66,10 @@ export function MusicPlayerProvider({
     audio.addEventListener("timeupdate", updateTime);
     audio.addEventListener("loadedmetadata", updateDuration);
 
+    if (lastPlayedTrack) {
+      setCurrentSong(lastPlayedTrack);
+    }
+
     return () => {
       if (audio) {
         audio.removeEventListener("timeupdate", updateTime);
@@ -64,6 +78,7 @@ export function MusicPlayerProvider({
         audioRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

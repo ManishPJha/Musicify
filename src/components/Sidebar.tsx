@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { Home, Library, Search, LogOut, Music } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { useRecoilState } from "recoil";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlaylists } from "@/hooks/use-playlists";
@@ -10,13 +12,22 @@ import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChildrenWithRedirect } from "@/components/ChildrenWithRedirect";
 
+import { playlistsState } from "@recoil/playlistState";
+
 export function Sidebar() {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
 
+  const [fetchedPlaylists, saveFetchedPlaylists] =
+    useRecoilState(playlistsState);
+
   const { data: playlists, isLoading: isLoadingPlaylists } = usePlaylists(
     user?.id
   );
+
+  // useEffect(() => {
+  //   if (playlists) saveFetchedPlaylists(playlists);
+  // }, [playlists]);
 
   const logoutMutation = useMutation({
     mutationFn: async () => await signOut(),
