@@ -4,39 +4,22 @@ import { Music } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
 
 export function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+
   const { signIn, signUp } = useAuth();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (isSignUp) {
-        await signUp(email, password, username);
-        toast({
-          title: "Account created",
-          description: "Please check your email to verify your account.",
-        });
-      } else {
-        await signIn(email, password);
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in.",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
+
+    if (isSignUp) {
+      await signUp(email, password, username);
+    } else {
+      await signIn(email, password);
     }
   };
 
