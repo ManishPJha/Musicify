@@ -1,3 +1,5 @@
+import { ButtonProps } from "@/components/ui/button";
+
 export interface Song {
   id: string;
   title: string;
@@ -34,4 +36,14 @@ export interface Genre {
   name: string;
   description: string | null;
   cover_image: string | null;
+}
+
+type ButtonComponentProps = ButtonProps & {
+  onClick: () => void;
+  btnLabel: string;
+};
+
+export interface ChildrenProps {
+  component: React.ElementType<ButtonProps>;
+  componentProps: ButtonComponentProps;
 }

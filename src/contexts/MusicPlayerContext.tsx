@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { SetterOrUpdater, useRecoilState, useRecoilValue } from "recoil";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Song } from "@/lib/data";
@@ -29,6 +29,7 @@ interface MusicPlayerContextType {
   removeFromQueue: (songId: string) => void;
   playNext: () => void;
   playPrevious: () => void;
+  setIsPlaying: SetterOrUpdater<boolean>;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(
@@ -97,10 +98,10 @@ export function MusicPlayerProvider({
 
     audioRef.current.src = filteredPlayingTrack;
 
-    if (isPlaying) {
-      audioRef.current.play().catch(console.error);
-    }
-  }, [currentSong, isPlaying]);
+    if (isPlaying) audioRef.current.play().catch(console.error);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSong]);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -110,7 +111,7 @@ export function MusicPlayerProvider({
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, audioRef]);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -166,7 +167,6 @@ export function MusicPlayerProvider({
       setCurrentSongState(song);
       recentlyPlayedCache.put(song.id, song);
       setRecentlyPlayed(recentlyPlayedCache.getRecent());
-      setIsPlaying(true);
     } catch (error) {
       console.error("Error setting current song:", error);
     }
@@ -232,6 +232,7 @@ export function MusicPlayerProvider({
         removeFromQueue,
         playNext,
         playPrevious,
+        setIsPlaying,
       }}
     >
       {children}

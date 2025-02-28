@@ -20,7 +20,7 @@ import type { Song } from "@/lib/data";
 const Index = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { setCurrentSong } = useMusicPlayer();
+  const { setCurrentSong, setIsPlaying } = useMusicPlayer();
   const { mutate: createPlaylist, isPending } = useCreatePlaylist();
   const { data: genres, isLoading: isLoadingGenres } = useGenres(user);
   const { data: songsByGenre, isLoading: isLoadingSongs } = useQuery({
@@ -123,6 +123,7 @@ const Index = () => {
           isLoadingGenres={isLoadingGenres}
           isLoadingSongs={isLoadingSongs}
           setCurrentSong={setCurrentSong}
+          setIsPlaying={(isPlayingState) => setIsPlaying(isPlayingState)}
         />
       )}
     </div>
