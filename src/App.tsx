@@ -10,6 +10,7 @@ import { MusicPlayerProvider } from "@/contexts/MusicPlayerContext";
 
 import Index from "@/pages/Index";
 import PlaylistDetail from "@/pages/PlaylistDetail";
+import Library from "@/pages/Library";
 import NotFound from "@/pages/NotFound";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/playlist/:id" element={<PlaylistDetail />} />
+                <Route path="/library" element={<Library />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
