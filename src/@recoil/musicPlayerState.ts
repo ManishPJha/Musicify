@@ -21,11 +21,27 @@ export const isPlayingState = atom<boolean>({
   default: false,
 });
 
+// Atop for the queue state
+export const queueState = atom<Song[]>({
+  key: "queueState",
+  default: [],
+  effects_UNSTABLE: [persistAtom],
+});
+
 // Selector for the last played track
 export const lastPlayedTrackState = selector<Song | null>({
   key: "lastPlayedTrackState",
   get: ({ get }) => {
     const currentTrack = get(currentTrackState);
     return currentTrack;
+  },
+});
+
+// Selector for the recently played track queue
+export const lastPlayedTrackQueueState = selector<Song[]>({
+  key: "lastPlayedTrackQueueState",
+  get: ({ get }) => {
+    const recentlyPlayed = get(queueState);
+    return recentlyPlayed;
   },
 });

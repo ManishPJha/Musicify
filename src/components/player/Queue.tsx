@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { List } from "lucide-react";
+import update from "immutability-helper";
+import { useRecoilState } from "recoil";
 
 import {
   Sheet,
@@ -13,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import QueueCard from "@/components/cards/QueueCard";
 
 import { Song } from "@/lib/data";
+import { queueState } from "@recoil/musicPlayerState";
 
 interface QueueProps {
   queue: Song[];
@@ -20,6 +23,20 @@ interface QueueProps {
 }
 
 const Queue: React.FC<QueueProps> = ({ queue, removeFromQueue }) => {
+  const [_, setSongsInQueue] = useRecoilState(queueState);
+
+  const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
+    setSongsInQueue((prevSong: Song[]) =>
+      update(prevSong, {
+        $splice: [
+          [dragIndex, 1],
+          [hoverIndex, 0, prevSong[dragIndex] as Song],
+        ],
+      })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -38,9 +55,10 @@ const Queue: React.FC<QueueProps> = ({ queue, removeFromQueue }) => {
             </p>
           ) : (
             <div className="space-y-4">
-              {queue.map((song) => (
+              {queue.map((song, i) => (
                 <QueueCard
                   key={song.id}
+                  index={i}
                   song={song}
                   btnGroup={[
                     {
@@ -53,6 +71,7 @@ const Queue: React.FC<QueueProps> = ({ queue, removeFromQueue }) => {
                       },
                     },
                   ]}
+                  moveCard={moveCard}
                 />
               ))}
             </div>

@@ -9,6 +9,8 @@ import {
   currentTrackState,
   isPlayingState,
   lastPlayedTrackState,
+  queueState,
+  lastPlayedTrackQueueState,
 } from "@recoil/musicPlayerState";
 
 interface MusicPlayerContextType {
@@ -46,10 +48,11 @@ export function MusicPlayerProvider({
 }) {
   const [currentSong, setCurrentSongState] = useRecoilState(currentTrackState);
   const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
+  const [queue, setQueue] = useRecoilState(queueState);
   const lastPlayedTrack = useRecoilValue(lastPlayedTrackState);
+  const lastPlayedTrackQueue = useRecoilValue(lastPlayedTrackQueueState);
 
   const [isShuffle, setIsShuffle] = useState(false);
-  const [queue, setQueue] = useState<Song[]>([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState<Song[]>([]);
   const [volume, setVolume] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
@@ -69,6 +72,10 @@ export function MusicPlayerProvider({
 
     if (lastPlayedTrack) {
       setCurrentSong(lastPlayedTrack);
+    }
+
+    if (lastPlayedTrackQueue) {
+      setQueue(lastPlayedTrackQueue);
     }
 
     return () => {
