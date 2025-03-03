@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+
+import { fetchSongsFromJioSaavanApi } from "@/services/songService";
 
 interface SearchBarProps {
   onResults: (songs: never[]) => void;
@@ -19,6 +22,25 @@ export function SearchBar({
   const [query, setQuery] = useState("");
   const { toast } = useToast();
 
+  const { mutate: mutateSearchSongQuery, isPending } = useMutation({
+    mutationFn: async () => {
+      const songs = await fetchSongsFromJioSaavanApi(query);
+      return songs;
+    },
+    onSuccess: (songs) => {
+      onResults(songs); // Pass the search results to the parent component
+      setIsLoading(false); // Set loading state back to false
+    },
+    onError: (error) => {
+      console.error("Search error:", error);
+      toast({
+        title: "Search failed",
+        description: "Failed to search for songs. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     onResults([]);
@@ -26,23 +48,7 @@ export function SearchBar({
     if (!query.trim()) return;
 
     setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("jiosaavn", {
-        body: { type: "search", query: query.trim() },
-      });
-
-      if (error) throw error;
-      onResults(data.songs);
-    } catch (error) {
-      console.error("Search error:", error);
-      toast({
-        title: "Search failed",
-        description: "Failed to search for songs. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    mutateSearchSongQuery();
   };
 
   return (
@@ -54,7 +60,7 @@ export function SearchBar({
         onChange={(e) => setQuery(e.target.value)}
         className="bg-muted"
       />
-      <Button type="submit" disabled={isLoading}>
+      <Button type="submit" disabled={isPending || isLoading}>
         <Search className="h-4 w-4 mr-2" />
         Search
       </Button>

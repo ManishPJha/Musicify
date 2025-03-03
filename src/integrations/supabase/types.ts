@@ -93,6 +93,7 @@ export type Database = {
       playlists: {
         Row: {
           cover_image: string | null;
+          cover_bucket_key: string | null;
           created_at: string;
           description: string | null;
           id: string;
@@ -102,6 +103,7 @@ export type Database = {
         };
         Insert: {
           cover_image?: string | null;
+          cover_bucket_key?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
@@ -111,6 +113,7 @@ export type Database = {
         };
         Update: {
           cover_image?: string | null;
+          cover_bucket_key?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;

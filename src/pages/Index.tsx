@@ -1,60 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCreatePlaylist } from "@/hooks/use-playlists";
+import { useGenres } from "@/hooks/use-songs";
+
 import { SearchBar } from "@/components/SearchBar";
 import { SearchResults } from "@/components/SearchResults";
-import { useAuth } from "@/contexts/AuthContext";
 import { AuthForm } from "@/components/AuthForm";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
-import { useMusicPlayer } from "@/hooks/useMusicPlayer";
 import MusicGenre from "@/components/MusicGenre";
 import PlaylistModal from "@/components/playlist/PlaylistModal";
-import type { Song, Genre } from "@/lib/data";
+
+import { fetchSongsForGenre } from "@/services/edgeService";
+
+import type { Song } from "@/lib/data";
 
 const Index = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { setCurrentSong } = useMusicPlayer();
-  const [searchResults, setSearchResults] = useState<Song[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
-
-  const { data: genres, isLoading: isLoadingGenres } = useQuery({
-    queryKey: ["genres"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("genres").select("*");
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
-
-  const fetchSongsForGenre = async (genreName: string) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/jiosaavn`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            type: "genre",
-            genre: genreName,
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch songs");
-      const data = await response.json();
-      return data.songs;
-    } catch (error) {
-      console.error(`Error fetching songs for genre ${genreName}:`, error);
-      return [];
-    }
-  };
-
+  const { mutate: createPlaylist, isPending } = useCreatePlaylist();
+  const { data: genres, isLoading: isLoadingGenres } = useGenres(user);
   const { data: songsByGenre, isLoading: isLoadingSongs } = useQuery({
     queryKey: ["songs-by-genre"],
     queryFn: async () => {
@@ -69,26 +35,27 @@ const Index = () => {
     enabled: !!genres,
   });
 
-  const handleCreatePlaylist = async (data: {
+  const [searchResults, setSearchResults] = useState<Song[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleCreatePlaylist = (data: {
     name: string;
     description: string;
   }) => {
     if (!user) return;
-
-    setIsCreatingPlaylist(true);
     try {
-      const { data: playlist, error } = await supabase
-        .from("playlists")
-        .insert({
-          name: data.name,
-          description: data.description,
-          user_id: user.id,
-          cover_image: "/placeholder.svg",
-        })
-        .select()
-        .single();
+      createPlaylist({
+        ...data,
+        userId: user.id,
+        coverFile: coverFile,
+      });
 
-      if (error) throw error;
+      setCoverFile(null);
+      setCoverPreview(null);
+      closePlaylistModal();
 
       toast({
         title: "Playlist created",
@@ -101,10 +68,19 @@ const Index = () => {
         description: "Failed to create playlist. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsCreatingPlaylist(false);
     }
   };
+
+  const closePlaylistModal = () => setIsOpen(false);
+
+  // Cleanup preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (coverPreview) {
+        URL.revokeObjectURL(coverPreview);
+      }
+    };
+  }, [coverPreview]);
 
   if (!user) {
     return (
@@ -119,8 +95,13 @@ const Index = () => {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Welcome Back!</h1>
         <PlaylistModal
-          isCreatingPlaylist={isCreatingPlaylist}
+          open={isOpen}
+          isCreatingPlaylist={isPending}
+          previewImageDataURL={coverPreview}
           onSubmit={handleCreatePlaylist}
+          onOpenChange={setIsOpen}
+          setCoverFile={setCoverFile}
+          setCoverPreview={setCoverPreview}
         />
       </div>
 
@@ -139,7 +120,6 @@ const Index = () => {
           songsByGenre={songsByGenre}
           isLoadingGenres={isLoadingGenres}
           isLoadingSongs={isLoadingSongs}
-          setCurrentSong={setCurrentSong}
         />
       )}
     </div>

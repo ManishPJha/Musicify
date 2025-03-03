@@ -1,47 +1,52 @@
+import { useEffect } from "react";
 import { Home, Library, Search, LogOut, Music } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { useRecoilState } from "recoil";
+
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlaylists } from "@/hooks/use-playlists";
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { ChildrenWithRedirect } from "./ChildrenWithRedirect";
+import { ChildrenWithRedirect } from "@/components/ChildrenWithRedirect";
+
+import { playlistsState } from "@recoil/playlistState";
 
 export function Sidebar() {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
 
-  const { data: playlists } = useQuery({
-    queryKey: ["playlists", user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("playlists")
-        .select("*")
-        .eq("user_id", user?.id)
-        .order("created_at", { ascending: false });
+  const [fetchedPlaylists, saveFetchedPlaylists] =
+    useRecoilState(playlistsState);
 
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
+  const { data: playlists, isLoading: isLoadingPlaylists } = usePlaylists(
+    user?.id
+  );
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
+  // useEffect(() => {
+  //   if (playlists) saveFetchedPlaylists(playlists);
+  // }, [playlists]);
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => await signOut(),
+    onSuccess: () => {
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
-    } catch (error) {
+    },
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to sign out. Please try again.",
         variant: "destructive",
       });
-    }
-  };
+    },
+  });
+
+  const handleSignOut = () => logoutMutation.mutate();
 
   if (!user) return null;
 

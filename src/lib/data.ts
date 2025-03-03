@@ -1,3 +1,5 @@
+import { ButtonProps } from "@/components/ui/button";
+
 export interface Song {
   id: string;
   title: string;
@@ -9,11 +11,14 @@ export interface Song {
 }
 
 export interface Playlist {
+  cover_image: string | null;
+  cover_bucket_key: string | null;
+  created_at: string;
+  description: string | null;
   id: string;
-  title: string;
-  description: string;
-  cover: string;
-  songs: Song[];
+  name: string;
+  updated_at: string;
+  user_id: string;
 }
 
 export interface JioSaavnImage {
@@ -31,4 +36,14 @@ export interface Genre {
   name: string;
   description: string | null;
   cover_image: string | null;
+}
+
+type ButtonComponentProps = ButtonProps & {
+  onClick: () => void;
+  btnLabel: string;
+};
+
+export interface ChildrenProps {
+  component: React.ElementType<ButtonProps>;
+  componentProps: ButtonComponentProps;
 }

@@ -1,7 +1,17 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
+import { SetterOrUpdater, useRecoilState, useRecoilValue } from "recoil";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Song } from "@/lib/data";
 import { LRUCache } from "@/lib/cache";
+
+import {
+  currentTrackState,
+  isPlayingState,
+  lastPlayedTrackState,
+  queueState,
+  lastPlayedTrackQueueState,
+} from "@recoil/musicPlayerState";
 
 interface MusicPlayerContextType {
   currentSong: Song | null;
@@ -21,6 +31,7 @@ interface MusicPlayerContextType {
   removeFromQueue: (songId: string) => void;
   playNext: () => void;
   playPrevious: () => void;
+  setIsPlaying: SetterOrUpdater<boolean>;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(
@@ -35,10 +46,13 @@ export function MusicPlayerProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [currentSong, setCurrentSongState] = useState<Song | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentSong, setCurrentSongState] = useRecoilState(currentTrackState);
+  const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
+  const [queue, setQueue] = useRecoilState(queueState);
+  const lastPlayedTrack = useRecoilValue(lastPlayedTrackState);
+  const lastPlayedTrackQueue = useRecoilValue(lastPlayedTrackQueueState);
+
   const [isShuffle, setIsShuffle] = useState(false);
-  const [queue, setQueue] = useState<Song[]>([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState<Song[]>([]);
   const [volume, setVolume] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
@@ -56,6 +70,14 @@ export function MusicPlayerProvider({
     audio.addEventListener("timeupdate", updateTime);
     audio.addEventListener("loadedmetadata", updateDuration);
 
+    if (lastPlayedTrack) {
+      setCurrentSong(lastPlayedTrack);
+    }
+
+    if (lastPlayedTrackQueue) {
+      setQueue(lastPlayedTrackQueue);
+    }
+
     return () => {
       if (audio) {
         audio.removeEventListener("timeupdate", updateTime);
@@ -64,6 +86,7 @@ export function MusicPlayerProvider({
         audioRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -82,10 +105,10 @@ export function MusicPlayerProvider({
 
     audioRef.current.src = filteredPlayingTrack;
 
-    if (isPlaying) {
-      audioRef.current.play().catch(console.error);
-    }
-  }, [currentSong, isPlaying]);
+    if (isPlaying) audioRef.current.play().catch(console.error);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSong]);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -95,7 +118,7 @@ export function MusicPlayerProvider({
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, audioRef]);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -151,7 +174,6 @@ export function MusicPlayerProvider({
       setCurrentSongState(song);
       recentlyPlayedCache.put(song.id, song);
       setRecentlyPlayed(recentlyPlayedCache.getRecent());
-      setIsPlaying(true);
     } catch (error) {
       console.error("Error setting current song:", error);
     }
@@ -169,11 +191,6 @@ export function MusicPlayerProvider({
   };
 
   const addToQueue = (song: Song) => {
-    console.log(
-      "%c [ adding song to queue ]-170",
-      "font-size:13px; background:#f8dd13; color:#ffff57;",
-      song
-    );
     setQueue((prev) => [...prev, song]);
   };
 
@@ -222,6 +239,7 @@ export function MusicPlayerProvider({
         removeFromQueue,
         playNext,
         playPrevious,
+        setIsPlaying,
       }}
     >
       {children}

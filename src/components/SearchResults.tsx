@@ -1,17 +1,12 @@
-import { Song } from "@/lib/data";
-import { Play, MoreVertical, Heart, ListPlus, List } from "lucide-react";
+import { Play } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import PreviewComponent from "./PreviewComponent";
-import { useMusicPlayer } from "@/hooks/useMusicPlayer";
+import PreviewComponent from "@/components/PreviewComponent";
+
+import { useMusicPlayer } from "@/hooks/use-musicPlayer";
+import PlayerDropdown from "./player/PlayerDropdown";
+
+import { Song } from "@/lib/data";
 
 interface SearchResultsProps {
   results: Song[];
@@ -19,30 +14,7 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ results, isLoading }: SearchResultsProps) {
-  const { setCurrentSong, addToQueue } = useMusicPlayer();
-  const { user } = useAuth();
-  const { toast } = useToast();
-
-  const handleAddToFavorites = async (song: Song) => {
-    try {
-      const { error } = await supabase
-        .from("favorites")
-        .insert({ user_id: user?.id, song_id: song.id });
-
-      if (error) throw error;
-
-      toast({
-        title: "Added to favorites",
-        description: `${song.title} has been added to your favorites`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add song to favorites",
-        variant: "destructive",
-      });
-    }
-  };
+  const { setCurrentSong } = useMusicPlayer();
 
   if (isLoading) {
     return (
@@ -78,33 +50,7 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
                 >
                   <Play className="h-5 w-5" />
                 </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="h-10 w-10"
-                    >
-                      <MoreVertical className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => addToQueue(song)}>
-                      <ListPlus className="mr-2 h-4 w-4" />
-                      Add to Queue
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleAddToFavorites(song)}
-                    >
-                      <Heart className="mr-2 h-4 w-4" />
-                      Add to Favorites
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <List className="mr-2 h-4 w-4" />
-                      Add to Playlist
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <PlayerDropdown song={song} />
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                 <h3 className="font-semibold text-white truncate">
