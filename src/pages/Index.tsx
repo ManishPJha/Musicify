@@ -9,6 +9,7 @@ import { useGenres } from "@/hooks/use-songs";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchResults } from "@/components/SearchResults";
 import { AuthForm } from "@/components/AuthForm";
+import { Typography } from "@/components/Typography";
 import MusicGenre from "@/components/MusicGenre";
 import PlaylistModal from "@/components/playlist/PlaylistModal";
 
@@ -93,7 +94,7 @@ const Index = () => {
   return (
     <div className="p-6 bg-background min-h-screen">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Welcome Back!</h1>
+        <Typography variant="h1">Welcome Back!</Typography>
         <PlaylistModal
           open={isOpen}
           isCreatingPlaylist={isPending}

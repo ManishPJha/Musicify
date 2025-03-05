@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/Typography";
 import QueueCard from "@/components/cards/QueueCard";
 
 import { Song } from "@/lib/data";
@@ -50,9 +51,9 @@ const Queue: React.FC<QueueProps> = ({ queue, removeFromQueue }) => {
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
           {queue.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">
+            <Typography variant="p" className={["text-center py-4"]}>
               Queue is empty
-            </p>
+            </Typography>
           ) : (
             <div className="space-y-4">
               {queue.map((song, i) => (

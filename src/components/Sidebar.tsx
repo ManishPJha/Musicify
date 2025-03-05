@@ -1,33 +1,18 @@
-import { useEffect } from "react";
-import { Home, Library, Search, LogOut, Music } from "lucide-react";
-import { Link } from "react-router-dom";
+import { LogOut, Music } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { useRecoilState } from "recoil";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { usePlaylists } from "@/hooks/use-playlists";
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChildrenWithRedirect } from "@/components/ChildrenWithRedirect";
-
-import { playlistsState } from "@recoil/playlistState";
+import { Typography } from "@/components/Typography";
+import VerticalNavItems from "@/components/navigation/vertical";
 
 export function Sidebar() {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
-
-  const [fetchedPlaylists, saveFetchedPlaylists] =
-    useRecoilState(playlistsState);
-
-  const { data: playlists, isLoading: isLoadingPlaylists } = usePlaylists(
-    user?.id
-  );
-
-  // useEffect(() => {
-  //   if (playlists) saveFetchedPlaylists(playlists);
-  // }, [playlists]);
 
   const logoutMutation = useMutation({
     mutationFn: async () => await signOut(),
@@ -57,51 +42,13 @@ export function Sidebar() {
           <Music className="w-4 h-4 text-white" />
         </div>
         <ChildrenWithRedirect redirectTo="/">
-          <span className="text-xl font-bold">Musicify</span>
+          <Typography variant="h3">Musicify</Typography>
         </ChildrenWithRedirect>
       </div>
 
       <ScrollArea className="flex-1 px-6">
-        <nav className="space-y-4 mb-6">
-          <Link
-            to="/"
-            className="flex items-center gap-4 text-gray-300 hover:text-white transition-colors"
-          >
-            <Home size={24} />
-            <span>Home</span>
-          </Link>
-          <Link
-            to="/search"
-            className="flex items-center gap-4 text-gray-300 hover:text-white transition-colors"
-          >
-            <Search size={24} />
-            <span>Search</span>
-          </Link>
-          <Link
-            to="/library"
-            className="flex items-center gap-4 text-gray-300 hover:text-white transition-colors"
-          >
-            <Library size={24} />
-            <span>Your Library</span>
-          </Link>
-        </nav>
-
-        <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-gray-400">
-            YOUR PLAYLISTS
-          </h2>
-          <div className="space-y-2">
-            {playlists?.map((playlist) => (
-              <Link
-                key={playlist.id}
-                to={`/playlist/${playlist.id}`}
-                className="block text-sm text-gray-300 hover:text-white transition-colors py-1"
-              >
-                {playlist.name}
-              </Link>
-            ))}
-          </div>
-        </div>
+        {/* Navigation Items */}
+        <VerticalNavItems />
       </ScrollArea>
 
       <div className="p-6 border-t border-gray-800">

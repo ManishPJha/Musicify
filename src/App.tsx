@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { Sidebar } from "@/components/Sidebar";
-import { MusicPlayer } from "@/components/MusicPlayer";
+// import { MusicPlayer } from "@/components/MusicPlayer";
 import { Toaster } from "@/components/ui/toaster";
 
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -12,6 +12,8 @@ import Index from "@/pages/Index";
 import PlaylistDetail from "@/pages/PlaylistDetail";
 import Library from "@/pages/Library";
 import NotFound from "@/pages/NotFound";
+
+import "@/App.css";
 
 function App() {
   return (
@@ -28,7 +30,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
-            <MusicPlayer />
+            {/* <MusicPlayer /> */}
           </div>
           <Toaster />
           <ReactQueryDevtools position="bottom" />

@@ -12,8 +12,9 @@ import {
 
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/Typography";
 import PreviewComponent from "@/components/PreviewComponent";
-import Queue from "./Queue";
+import Queue from "@/components/player/Queue";
 
 import { useMusicPlayer } from "@/hooks/use-musicPlayer";
 
@@ -55,8 +56,10 @@ const Controls: React.FC<ControlsProps> = ({
           quality="50x50"
         />
         <div>
-          <h4 className="font-medium">{currentSong.title}</h4>
-          <p className="text-sm text-muted-foreground">{currentSong.artist}</p>
+          <Typography variant="h4">{currentSong.title}</Typography>
+          <Typography variant="p" className={["text-muted-foreground"]}>
+            {currentSong.artist}
+          </Typography>
         </div>
       </div>
 

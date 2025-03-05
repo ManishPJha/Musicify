@@ -45,3 +45,31 @@
 .hover-scale {
   @apply transition-transform duration-200 hover:scale-105;
 }
+
+.Typography__h1 {
+  @apply text-4xl font-bold;
+}
+
+.Typography__h2 {
+  @apply text-3xl font-bold;
+}
+
+.Typography__h3 {
+  @apply text-2xl font-bold;
+}
+
+.Typography__h4 {
+  @apply text-xl font-bold;
+}
+
+.Typography__blockquote {
+  @apply text-lg font-medium;
+}
+
+.Typography__p {
+  @apply text-sm font-medium;
+}
+
+.Typography__span {
+  @apply text-sm font-medium;
+}
