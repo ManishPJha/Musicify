@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { Home, Library, Search } from "lucide-react";
 
 import { renderVerticalNavigationItems } from "@/view/renderVerticalNavItems";
+import { Typography } from "@/components/Typography";
+import { VerticalNavItemsSkeleton } from "../skeleton/navigation/VerticalNavItemsSkeleton";
 
 import { usePlaylists } from "@/hooks/use-playlists";
 import { useAuth } from "@/contexts/AuthContext";
-import { Typography } from "../Typography";
 
 const VerticalNavItems = () => {
   const { user } = useAuth();
@@ -20,6 +21,26 @@ const VerticalNavItems = () => {
     { label: "Your Library", path: "/library", icon: <Library /> },
   ];
 
+  function renderPlaylists() {
+    return (
+      <div className="space-y-2">
+        {playlists?.map((playlist) => (
+          <Link
+            key={playlist.id}
+            to={`/playlist/${playlist.id}`}
+            className="block text-sm text-gray-300 hover:text-white transition-colors py-1"
+          >
+            {playlist.name}
+          </Link>
+        ))}
+      </div>
+    );
+  }
+
+  if (isLoadingPlaylists) {
+    return <VerticalNavItemsSkeleton />;
+  }
+
   return (
     <>
       <nav className="space-y-4 mb-6">
@@ -27,17 +48,7 @@ const VerticalNavItems = () => {
       </nav>
       <div className="space-y-4">
         <Typography variant="span">PLAYLISTS</Typography>
-        <div className="space-y-2">
-          {playlists?.map((playlist) => (
-            <Link
-              key={playlist.id}
-              to={`/playlist/${playlist.id}`}
-              className="block text-sm text-gray-300 hover:text-white transition-colors py-1"
-            >
-              {playlist.name}
-            </Link>
-          ))}
-        </div>
+        {renderPlaylists()}
       </div>
     </>
   );

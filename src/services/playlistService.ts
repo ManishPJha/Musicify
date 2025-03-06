@@ -90,3 +90,40 @@ export const getPlaylistSongs = async (playlistId: string) => {
   if (error) throw error;
   return playlist;
 };
+
+/**
+ *
+ * @param data The song id and playlist id data
+ * @param {String} data.songId - The song id
+ * @param {String} data.playlistId - The playlist id
+ *
+ * @returns {Promise<Object>} - A promise that resolves to the newly added song to playlist.
+ * @throws {Error} - Throws an error if the playlist creation or file upload fails.
+ */
+export const addSongToPlaylist = async (data: {
+  songId: string;
+  playlistId: string;
+}) => {
+  if (!data.songId || !data.playlistId) {
+    throw new Error("Missing required parameters");
+  }
+
+  // Check if song already exists in the playlist
+  const { data: existingSong } = await supabase
+    .from("playlist_songs")
+    .select("id")
+    .eq("playlist_id", data.playlistId)
+    .eq("song_id", data.songId)
+    .single();
+
+  if (existingSong)
+    throw new Error("This song is already in the selected playlist");
+
+  // Add song to the playlist
+  const { error: error } = await supabase.from("playlist_songs").insert({
+    playlist_id: data.playlistId,
+    song_id: data.songId,
+  });
+
+  if (error) throw error;
+};
