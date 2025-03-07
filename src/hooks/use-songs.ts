@@ -7,6 +7,8 @@ import {
   fetchFavoriteSongs,
 } from "@/services/songService";
 
+import { useToast } from "./use-toast";
+
 export const useGenres = (user: User) => {
   return useQuery({
     queryKey: ["genres"],
@@ -16,8 +18,21 @@ export const useGenres = (user: User) => {
 };
 
 export const useAddSongToFavorite = () => {
+  const { toast } = useToast();
+
   return useMutation({
     mutationFn: addSongToFavorite,
+    onSuccess: () =>
+      toast({
+        title: "Success",
+        description: "Song has been added to your favorites",
+      }),
+    onError: (error) =>
+      toast({
+        title: "Error",
+        description: "Failed to add song to favorites",
+        variant: "destructive",
+      }),
   });
 };
 

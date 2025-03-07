@@ -36,7 +36,7 @@ export const useGetPlaylistSongs = (playlistId: string) => {
   });
 };
 
-export const useAddSongToPlalist = (songId: string, playlistId: string) => {
+export const useAddSongToPlaylist = () => {
   const { toast } = useToast();
 
   return useMutation({

@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCreatePlaylist } from "@/hooks/use-playlists";
 import { useGenres } from "@/hooks/use-songs";
 
 import { SearchBar } from "@/components/SearchBar";
@@ -12,6 +11,7 @@ import { AuthForm } from "@/components/AuthForm";
 import { Typography } from "@/components/Typography";
 import MusicGenre from "@/components/MusicGenre";
 import PlaylistModal from "@/components/playlist/PlaylistModal";
+import { Button } from "@/components/ui/button";
 
 import { fetchSongsForGenre } from "@/services/edgeService";
 
@@ -19,8 +19,7 @@ import type { Song } from "@/lib/data";
 
 const Index = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const { mutate: createPlaylist, isPending } = useCreatePlaylist();
+
   const { data: genres, isLoading: isLoadingGenres } = useGenres(user);
   const { data: songsByGenre, isLoading: isLoadingSongs } = useQuery({
     queryKey: ["songs-by-genre"],
@@ -38,50 +37,9 @@ const Index = () => {
 
   const [searchResults, setSearchResults] = useState<Song[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleCreatePlaylist = (data: {
-    name: string;
-    description: string;
-  }) => {
-    if (!user) return;
-    try {
-      createPlaylist({
-        ...data,
-        userId: user.id,
-        coverFile: coverFile,
-      });
-
-      setCoverFile(null);
-      setCoverPreview(null);
-      closePlaylistModal();
-
-      toast({
-        title: "Playlist created",
-        description: "Your new playlist has been created successfully",
-      });
-    } catch (error) {
-      console.error("Error creating playlist:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create playlist. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const closePlaylistModal = () => setIsOpen(false);
-
-  // Cleanup preview URL on unmount
-  useEffect(() => {
-    return () => {
-      if (coverPreview) {
-        URL.revokeObjectURL(coverPreview);
-      }
-    };
-  }, [coverPreview]);
+  const openPlaylistModal = () => setIsOpen(true);
 
   if (!user) {
     return (
@@ -95,15 +53,9 @@ const Index = () => {
     <div className="p-6 bg-background min-h-screen">
       <div className="flex items-center justify-between mb-6">
         <Typography variant="h1">Welcome Back!</Typography>
-        <PlaylistModal
-          open={isOpen}
-          isCreatingPlaylist={isPending}
-          previewImageDataURL={coverPreview}
-          onSubmit={handleCreatePlaylist}
-          onOpenChange={setIsOpen}
-          setCoverFile={setCoverFile}
-          setCoverPreview={setCoverPreview}
-        />
+        <Button onClick={openPlaylistModal}>
+          <Plus className="mr-2 h-4 w-4" /> Create Playlist
+        </Button>
       </div>
 
       <div className="mb-8">
@@ -123,6 +75,7 @@ const Index = () => {
           isLoadingSongs={isLoadingSongs}
         />
       )}
+      {isOpen && <PlaylistModal open={isOpen} onOpenChange={setIsOpen} />}
     </div>
   );
 };
